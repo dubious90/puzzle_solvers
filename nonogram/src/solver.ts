@@ -2,8 +2,8 @@ import assert from "assert";
 
 
 enum Square {
-    YES,
     NO,
+    YES,
     MAYBE
 }
 
@@ -75,7 +75,7 @@ interface Grid {
     cols: Array<RowCol>,
 }
 
-class NonogramSolver {
+export default class NonogramSolver {
     initialPossibilityMap = new Map<number, Map<string, Array<Array<Square>>>>;
     allPermutations = new Map<number, Array<Array<Square>>>;
 
@@ -204,5 +204,5 @@ class NonogramSolver {
 
 };
 
-const solver = new NonogramSolver();
-solver.solveNonogram(TRIVIAL_SPEC.ROWS, TRIVIAL_SPEC.COLS);
+// const solver = new NonogramSolver();
+// solver.solveNonogram(TRIVIAL_SPEC.ROWS, TRIVIAL_SPEC.COLS);
