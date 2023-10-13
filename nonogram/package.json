@@ -20,7 +20,8 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "NODE_OPTIONS=--experimental-vm-modules npx jest"
+    "test": "NODE_OPTIONS=--experimental-vm-modules npx jest",
+    "test-debug": "node --experimental-vm-modules --inspect node_modules/.bin/jest --runInBand"
   },
   "eslintConfig": {
     "extends": [

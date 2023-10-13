@@ -1,7 +1,7 @@
 import assert from "assert";
 
 
-enum Square {
+export enum Square {
     NO,
     YES,
     MAYBE
@@ -60,7 +60,7 @@ function copyTwoDimensionalArray(oldArray: Array<Array<Square>>) {
 }
 
 // Represents a row or column.
-interface RowCol {
+export interface RowCol {
     // The current state of the squares
     current: Array<Square>;
     // All remaining possibilities for what this row or column could be
@@ -75,9 +75,11 @@ interface Grid {
     cols: Array<RowCol>,
 }
 
+export type GridHistory = Array<Array<Array<Square>>>;
+
 export default class NonogramSolver {
-    initialPossibilityMap = new Map<number, Map<string, Array<Array<Square>>>>;
-    allPermutations = new Map<number, Array<Array<Square>>>;
+    private initialPossibilityMap = new Map<number, Map<string, Array<Array<Square>>>>;
+    private allPermutations = new Map<number, Array<Array<Square>>>;
 
     getPermutations(gridSize: number) {
         let permutations = this.allPermutations.get(gridSize);
@@ -98,6 +100,7 @@ export default class NonogramSolver {
                 newPermutation.push(Square.NO);
                 nextPermutations.push(newPermutation);
             });
+            permutations = nextPermutations;
         }
 
         this.allPermutations.set(gridSize, permutations);
@@ -155,7 +158,6 @@ export default class NonogramSolver {
             }
         });
 
-
         promptsToPossibilitiesMap.set(promptKey, possiblePermutations);
         this.initialPossibilityMap.set(gridSize, promptsToPossibilitiesMap);
         return possiblePermutations;
@@ -170,10 +172,6 @@ export default class NonogramSolver {
             possibilities,
         }
     }
-
-    // setSquareValue(index: number, val: Square) {
-    //     this.current[index] = val;
-    // }
 
     createGrid(rowPrompts: Array<Array<number>>, colPrompts: Array<Array<number>>): Grid {
         const gridSize = rowPrompts.length;
@@ -191,18 +189,88 @@ export default class NonogramSolver {
         };
     }
 
-    setSquare(row: number, col: number, val: Square) {
-        // this.rows[row][col] = val;
-        // this.cols[col][row] = val;
+    setSquareOnRowCol(rowCol: RowCol, index: number, val: Square) {
+        rowCol.current[index] = val;
+        let filteredPossibilities: Array<Array<Square>> = [];
+        rowCol.possibilities.forEach((possibility) => {
+            if (possibility[index] === val) {
+                filteredPossibilities.push(possibility.slice());
+            }
+            else {
+                // console.log("filtered a possibility out");
+            }
+        });
+        rowCol.possibilities = filteredPossibilities;
     }
 
-    solveNonogram(rowPrompts: Array<Array<number>>, colPrompts: Array<Array<number>>) {
+    filterCurrentValuesToPossibilities(rowCol: RowCol, setSquareFunction: (index: number, val: Square) => void) {
+        for (let i = 0; i < rowCol.current.length; i++) {
+            if (rowCol.current[i] === Square.MAYBE) {
+                if (rowCol.possibilities.length === 0) {
+                    throw Error("Ran out of possibilities");
+                }
+                let firstVal = rowCol.possibilities[0][i];
+                let allSame = true;
+                rowCol.possibilities.forEach((possibility) => {
+                    if (possibility[i] !== firstVal) {
+                        allSame = false;
+                    }
+                });
+
+                if (allSame) {
+                    setSquareFunction(i, firstVal);
+                }
+            }
+            else {
+                // Already set in stone.
+            }
+        }
+    }
+
+    setSquareOnGrid(grid: Grid, row: number, col: number, val: Square) {
+        this.setSquareOnRowCol(grid.rows[row], col, val);
+        this.setSquareOnRowCol(grid.cols[col], row, val);
+    }
+
+    getReadableGrid(grid: Grid): Array<Array<Square>> {
+        let readableGrid: Array<Array<Square>> = [];
+        grid.rows.forEach((row) => {
+            readableGrid.push(row.current);
+        });
+        return readableGrid;
+    }
+
+    solveNonogram(rowPrompts: Array<Array<number>>, colPrompts: Array<Array<number>>, history: GridHistory = []) {
         assert(rowPrompts.length === colPrompts.length);
         let grid = this.createGrid(rowPrompts, colPrompts);
 
+        let didSomething = true;
+        try {
+            while (didSomething) {
+                didSomething = false;
+
+                for (let row = 0; row < grid.rows.length; row++) {
+                    this.filterCurrentValuesToPossibilities(grid.rows[row], (col, val) => {
+                        didSomething = true;
+                        this.setSquareOnGrid(grid, row, col, val);
+                    });
+                }
+                history.push(this.getReadableGrid(grid));
+
+                for (let col = 0; col < grid.rows.length; col++) {
+                    this.filterCurrentValuesToPossibilities(grid.cols[col], (row, val) => {
+                        didSomething = true;
+                        this.setSquareOnGrid(grid, row, col, val);
+                    });
+                }
+                history.push(this.getReadableGrid(grid));
+            }
+        }
+        catch (e) {
+            console.log(e);
+        }
+
+        return this.getReadableGrid(grid);
     }
 
 };
-
-// const solver = new NonogramSolver();
-// solver.solveNonogram(TRIVIAL_SPEC.ROWS, TRIVIAL_SPEC.COLS);
