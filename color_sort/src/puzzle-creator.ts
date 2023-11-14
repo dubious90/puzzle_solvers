@@ -9,7 +9,7 @@ export function useRecommendedColors() {
     const [lightGreen] = useColor("#90EE90");
     const [darkBlue] = useColor("#003AFF");
     const [gray] = useColor("#808080");
-    const [purple] = useColor("#7F00FF")
+    const [purple] = useColor("#9f00b5")
     const [sageGreen] = useColor("#8A9A5B");
     const [forestGreen] = useColor("#228B22");
     const [yellow] = useColor("#FFEA00");

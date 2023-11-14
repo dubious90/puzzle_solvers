@@ -1,4 +1,4 @@
-import { Button } from '@mui/material';
+import { Button, Tooltip } from '@mui/material';
 import { AppState } from './enums';
 
 export enum ButtonClickAction {
@@ -20,10 +20,16 @@ function SecondaryButtons({ appState, handleButtonClick }: ColorSortButtonsProps
     }
     return (
         <div style={{ marginTop: "20px" }}>
-            <Button sx={{ margin: "10px" }} variant='outlined' size='small' onClick={() => handleButtonClick(ButtonClickAction.USE_RECOMMENDED_COLORS)}>USE RECOMMENDED COLORS</Button>
-            <Button sx={{ margin: "10px" }} variant='outlined' size='small' onClick={() => handleButtonClick(ButtonClickAction.EXAMPLE_PUZZLE)}>USE EXAMPLE PUZZLE</Button>
-            <Button sx={{ margin: "10px" }} variant='outlined' size='small' onClick={() => handleButtonClick(ButtonClickAction.RANDOM_PUZZLE)}>GENERATE RANDOM PUZZLE</Button>
-        </div>
+            <Tooltip title="Use Recommended Colors: Fills your color selections with up to 12 matching the Water Sort Puzzle app selections.">
+                <Button sx={{ margin: "10px" }} variant='outlined' size='small' onClick={() => handleButtonClick(ButtonClickAction.USE_RECOMMENDED_COLORS)}>USE RECOMMENDED COLORS</Button>
+            </Tooltip>
+            <Tooltip title="Use Example Puzzle: Replaces current puzzle state and pipe count with one example that is known to work.">
+                <Button sx={{ margin: "10px" }} variant='outlined' size='small' onClick={() => handleButtonClick(ButtonClickAction.EXAMPLE_PUZZLE)}>USE EXAMPLE PUZZLE</Button>
+            </Tooltip>
+            <Tooltip title="Generate Random Puzzle: Replaces the current puzzle state with a randomly generated puzzle using the current pipe count. Note that not all randomly generated puzzles are guaranteed to have solutions.">
+                <Button sx={{ margin: "10px" }} variant='outlined' size='small' onClick={() => handleButtonClick(ButtonClickAction.RANDOM_PUZZLE)}>GENERATE RANDOM PUZZLE</Button>
+            </Tooltip >
+        </div >
     );
 }
 
