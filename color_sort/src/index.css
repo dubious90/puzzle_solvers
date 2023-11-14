@@ -47,3 +47,11 @@ code {
   transform: translate(-50%, 0);
   z-index: 1000;
 }
+
+.hidden {
+  display: none;
+}
+
+.secondaryButtons {
+  margin: 10px;
+}

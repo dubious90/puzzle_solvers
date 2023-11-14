@@ -103,7 +103,6 @@ export function solvePipes(pipesInput: Array<Array<number>>) {
     let history = new Set();
     let finalSolution: Array<MoveAction> = [];
 
-    let duplicateNodes = 0;
     let solutions = [[new MoveAction(pipesInput, -1, -1)]];
     history.add(pipesInput);
     while (finalSolution.length === 0 && solutions.length > 0) {
@@ -131,9 +130,6 @@ export function solvePipes(pipesInput: Array<Array<number>>) {
                                     let nextSolution = copySolution(solution);
                                     nextSolution.push(new MoveAction(nextPipes, i, j));
                                     solutions.push(nextSolution);
-                                }
-                                else {
-                                    duplicateNodes++;
                                 }
                             }
                         }

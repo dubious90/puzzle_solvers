@@ -6,14 +6,14 @@ interface SlidersProps {
     appState: AppState,
     pipeCount: number,
     pipesOnChange: (event: Event, newValue: number | number[]) => void,
-    colorCount: number,
-    colorsOnChange: (event: Event, newValue: number | number[]) => void,
+    // colorCount: number,
+    // colorsOnChange: (event: Event, newValue: number | number[]) => void,
     historySize: number,
     historyOnChange: (event: Event, newValue: number | number[]) => void,
     currentMoveAction: number
 }
 
-export default function Sliders({ appState, pipeCount, pipesOnChange, colorCount, colorsOnChange, historySize, historyOnChange, currentMoveAction }: SlidersProps) {
+export default function Sliders({ appState, pipeCount, pipesOnChange, historySize, historyOnChange, currentMoveAction }: SlidersProps) {
     if (appState === AppState.FORMING_PUZZLE) {
         return (
             <div>
@@ -30,6 +30,8 @@ export default function Sliders({ appState, pipeCount, pipesOnChange, colorCount
                         onChange={pipesOnChange}
                     />
                 </div>
+                {/*
+                removing this feature, as right now we assume colorCount = pipeCount - 2
                 <div>
                     <Typography>Select number of colors: </Typography>
                     <Slider
@@ -42,7 +44,7 @@ export default function Sliders({ appState, pipeCount, pipesOnChange, colorCount
                         max={20}
                         onChange={colorsOnChange}
                     />
-                </div>
+                </div> */}
             </div>
         );
     }

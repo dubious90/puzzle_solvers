@@ -7,9 +7,11 @@ import { ColorPicker, IColor, useColor } from "react-color-palette";
 import Sliders from './Sliders';
 import { MoveAction, solvePipes } from './pipes';
 import { AppState } from './enums';
+import { useRecommendedColors, examplePuzzle, createRandomPuzzle } from './puzzle-creator';
 
 import './App.css';
 import "react-color-palette/css";
+import ColorSortButtons, { ButtonClickAction } from './ColorSortButtons';
 
 interface PipeProps {
   index: number,
@@ -31,9 +33,16 @@ function Pipe({ colorIds, allColors, index, onClick }: PipeProps) {
   for (let i = 0; i < colorIds.length; i++) {
     const fillOffset = 50 * (i + 4 - colorIds.length) + 25;
     const key = "pipe" + index + "color" + i;
-    fills.push(
-      <rect key={key} fill={allColors[colorIds[i]].hex} width="48" height="50" y={fillOffset} x={1} onClick={() => onClick(index, i)} ></rect>
-    );
+    const color = allColors[colorIds[i]];
+    if (!color) {
+      // This situation shouldn't happen, but the app shouldn't crash
+      console.log("Missing color on pipe " + index, i, colorIds, allColors, index);
+    }
+    else {
+      fills.push(
+        <rect key={key} fill={allColors[colorIds[i]].hex} width="48" height="50" y={fillOffset} x={1} onClick={() => onClick(index, i)} ></rect>
+      );
+    }
   };
   return (
     <svg display="block" width="75px" height="250px">
@@ -105,11 +114,14 @@ function App() {
 
   const [appState, setAppState] = useState<AppState>(AppState.FORMING_PUZZLE);
   const [pipeCount, setPipeCount] = useState<number>(14);
-  const [colorCount, setColorCount] = useState<number>(12);
+  // const [colorCount, setColorCount] = useState<number>(12);
   const [pipeInputs, setPipeInputs] = useState<Array<Array<number>>>([]);
   const [allColors, setAllColors] = useState<Array<IColor>>(cookies.get("allColors") || []);
   const [history, setHistory] = useState<Array<MoveAction>>([]);
   const [currentMoveActionIndex, setCurrentMoveAction] = useState<number>(0);
+  const recommendedColors = useRecommendedColors();
+
+  const colorCount = pipeCount - 2;
 
   function addColorToPipe(colorId: number) {
     let newPipeInputs = pipeInputs.slice();
@@ -144,8 +156,8 @@ function App() {
     cookies.set("allColors", allColors);
   }
 
-  function handleButtonClick() {
-    if (appState === AppState.FORMING_PUZZLE) {
+  function handleButtonClick(action: ButtonClickAction) {
+    if (action === ButtonClickAction.SOLVE_PUZZLE) {
       const solution = solvePipes(pipeInputs.slice(0, pipeCount));
       if (solution && solution.length > 0) {
         setHistory(solution);
@@ -155,10 +167,29 @@ function App() {
         alert("Could not find solution");
       }
     }
-    else {
+    else if (action === ButtonClickAction.BACK_TO_PUZZLE_CREATION) {
       setAppState(AppState.FORMING_PUZZLE);
       setCurrentMoveAction(0);
       setHistory([]);
+    }
+    else if (action === ButtonClickAction.USE_RECOMMENDED_COLORS) {
+      let newColors = allColors.slice();
+      if (newColors.length < colorCount) {
+        newColors = new Array<IColor>(colorCount);
+      }
+      for (let i = 0; i < Math.min(allColors.length, recommendedColors.length); i++) {
+        newColors[i] = recommendedColors[i];
+      }
+      setAllColors(newColors);
+      cookies.set("allColors", allColors);
+    }
+    else if (action === ButtonClickAction.RANDOM_PUZZLE) {
+      const randomPuzzle: Array<Array<number>> = createRandomPuzzle(pipeCount);
+      setPipeInputs(randomPuzzle);
+    }
+    else if (action === ButtonClickAction.EXAMPLE_PUZZLE) {
+      setPipeCount(examplePuzzle.length);
+      setPipeInputs(examplePuzzle);
     }
   }
 
@@ -199,7 +230,7 @@ function App() {
     (
       <div>
         <div>
-          Select colors. Then drag them to pipes to create your puzzle:
+          Select colors. Then pick them to place them in pipes and create your puzzle:
         </div>
         <ul className='colorList'>
           {colorSelectors}
@@ -225,9 +256,9 @@ function App() {
       <Sliders
         appState={appState}
         pipeCount={pipeCount}
-        colorCount={colorCount}
+        // colorCount={colorCount}
         pipesOnChange={(event: Event, newPipesCount: number | number[]) => { setPipeCount(newPipesCount as number); }}
-        colorsOnChange={(event: Event, newColorCount: number | number[]) => { setColorCount(newColorCount as number); }}
+        // colorsOnChange={(event: Event, newColorCount: number | number[]) => { setColorCount(newColorCount as number); }}
         historySize={history.length}
         historyOnChange={(event: Event, newMoveAction: number | number[]) => { setCurrentMoveAction(newMoveAction as number); }}
         currentMoveAction={currentMoveActionIndex}
@@ -240,9 +271,7 @@ function App() {
       {selectColorsDiv}
       {explainHistoryDiv}
       <hr />
-      <div style={{ marginTop: "20px" }}>
-        <Button variant='contained' size='large' onClick={handleButtonClick}>{appState === AppState.FORMING_PUZZLE ? "FIND SOLUTION" : "BACK TO PUZZLE CREATION"}</Button>
-      </div>
+      <ColorSortButtons appState={appState} handleButtonClick={handleButtonClick} />
     </div >
   );
 }
