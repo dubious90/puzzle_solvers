@@ -4,17 +4,17 @@ describe("Nonogram Solver", () => {
     describe("#getPermutations", () => {
         const solver = new NonogramSolver();
         test("returns correct permutations for small numbers", () => {
-            expect(solver.getPermutations(1)).toEqual([[1], [0]]);
-            expect(solver.getPermutations(2)).toEqual([[1, 1], [1, 0], [0, 1], [0, 0]]);
+            expect(solver.getPermutations(1)).toEqual([[2], [1]]);
+            expect(solver.getPermutations(2)).toEqual([[2, 2], [2, 1], [1, 2], [1, 1]]);
             expect(solver.getPermutations(3)).toEqual([
+                [2, 2, 2],
+                [2, 2, 1],
+                [2, 1, 2],
+                [2, 1, 1],
+                [1, 2, 2],
+                [1, 2, 1],
+                [1, 1, 2],
                 [1, 1, 1],
-                [1, 1, 0],
-                [1, 0, 1],
-                [1, 0, 0],
-                [0, 1, 1],
-                [0, 1, 0],
-                [0, 0, 1],
-                [0, 0, 0],
             ]);
         });
 
@@ -28,27 +28,27 @@ describe("Nonogram Solver", () => {
     describe("#validSequenceForPrompt", () => {
         const solver = new NonogramSolver();
         test("returns true for valid sequences", () => {
-            expect(solver.validSequenceForPrompt([1, 1, 0, 1, 0], [2, 1])).toBe(true);
-            expect(solver.validSequenceForPrompt([1, 1, 0, 0, 1], [2, 1])).toBe(true);
-            expect(solver.validSequenceForPrompt([0, 1, 1, 0, 1], [2, 1])).toBe(true);
-            expect(solver.validSequenceForPrompt([1, 1, 1, 1, 1], [5])).toBe(true);
+            expect(solver.validSequenceForPrompt([2, 2, 1, 2, 1], [2, 1])).toBe(true);
+            expect(solver.validSequenceForPrompt([2, 2, 1, 1, 2], [2, 1])).toBe(true);
+            expect(solver.validSequenceForPrompt([1, 2, 2, 1, 2], [2, 1])).toBe(true);
+            expect(solver.validSequenceForPrompt([2, 2, 2, 2, 2], [5])).toBe(true);
         });
 
         test("returns false for sub-sequence too long", () => {
-            expect(solver.validSequenceForPrompt([1, 1, 1, 1, 1], [4])).toBe(false);
-            expect(solver.validSequenceForPrompt([1, 1, 1, 0, 1], [2, 1])).toBe(false);
+            expect(solver.validSequenceForPrompt([2, 2, 2, 2, 2], [4])).toBe(false);
+            expect(solver.validSequenceForPrompt([2, 2, 2, 1, 2], [2, 1])).toBe(false);
         });
 
         test("returns false when sub-sequence too short", () => {
-            expect(solver.validSequenceForPrompt([1, 0, 0, 0, 1], [2, 1])).toBe(false);
-            expect(solver.validSequenceForPrompt([1, 1, 1, 1, 0], [5])).toBe(false);
-            expect(solver.validSequenceForPrompt([1, 0, 0, 0, 1], [1, 2])).toBe(false);
-            expect(solver.validSequenceForPrompt([1, 0, 0, 1, 0], [1, 2])).toBe(false);
+            expect(solver.validSequenceForPrompt([2, 1, 1, 1, 2], [2, 1])).toBe(false);
+            expect(solver.validSequenceForPrompt([2, 2, 2, 2, 1], [5])).toBe(false);
+            expect(solver.validSequenceForPrompt([2, 1, 1, 1, 2], [1, 2])).toBe(false);
+            expect(solver.validSequenceForPrompt([2, 1, 1, 2, 1], [1, 2])).toBe(false);
         });
 
         test("returns false when sub-sequence missing", () => {
-            expect(solver.validSequenceForPrompt([1, 1, 0, 0, 0], [1, 2])).toBe(false);
-            expect(solver.validSequenceForPrompt([0, 0, 0, 1, 1], [1, 2])).toBe(false);
+            expect(solver.validSequenceForPrompt([2, 2, 1, 1, 1], [1, 2])).toBe(false);
+            expect(solver.validSequenceForPrompt([1, 1, 1, 2, 2], [1, 2])).toBe(false);
         });
     });
 
@@ -56,21 +56,21 @@ describe("Nonogram Solver", () => {
         const solver = new NonogramSolver();
         test("gets expected permutations", () => {
             expect(solver.getInitialPossibilitiesForPrompt(5, [2, 1])).toEqual([
-                [1, 1, 0, 1, 0],
-                [1, 1, 0, 0, 1],
-                [0, 1, 1, 0, 1],
+                [2, 2, 1, 2, 1],
+                [2, 2, 1, 1, 2],
+                [1, 2, 2, 1, 2],
             ]);
 
             expect(solver.getInitialPossibilitiesForPrompt(5, [2])).toEqual([
-                [1, 1, 0, 0, 0],
-                [0, 1, 1, 0, 0],
-                [0, 0, 1, 1, 0],
-                [0, 0, 0, 1, 1],
+                [2, 2, 1, 1, 1],
+                [1, 2, 2, 1, 1],
+                [1, 1, 2, 2, 1],
+                [1, 1, 1, 2, 2],
             ]);
 
             expect(solver.getInitialPossibilitiesForPrompt(15, [14])).toEqual([
-                [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0],
-                [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+                [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1],
+                [1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
             ]);
         })
     });
@@ -85,11 +85,11 @@ describe("Nonogram Solver", () => {
                 tuples.push([index, val]);
             });
             expect(tuples).toEqual([
-                [0, 1],
-                [1, 1],
-                [2, 1],
-                [3, 1],
-                [4, 1],
+                [0, 2],
+                [1, 2],
+                [2, 2],
+                [3, 2],
+                [4, 2],
             ])
         });
     });
@@ -116,11 +116,11 @@ describe("Nonogram Solver", () => {
             let history: GridHistory = [];
             expect(solver.solveNonogram(TRIVIAL_SPEC.ROWS, TRIVIAL_SPEC.COLS, history)).toEqual(
                 [
-                    [1, 1, 1, 1, 1],
-                    [0, 1, 1, 1, 0],
-                    [0, 1, 1, 1, 0],
-                    [0, 1, 1, 1, 0],
-                    [1, 1, 1, 1, 1],
+                    [2, 2, 2, 2, 2],
+                    [1, 2, 2, 2, 1],
+                    [1, 2, 2, 2, 1],
+                    [1, 2, 2, 2, 1],
+                    [2, 2, 2, 2, 2],
 
                 ],
             );
@@ -155,16 +155,16 @@ describe("Nonogram Solver", () => {
             }
 
             const EXPECTED_SOLUTION = [
-                [0, 0, 0, 0, 1, 1, 0, 0, 0, 0],
-                [0, 0, 0, 1, 1, 1, 1, 0, 0, 0],
-                [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-                [1, 1, 1, 1, 1, 0, 1, 1, 1, 1],
-                [0, 1, 1, 0, 1, 0, 1, 0, 1, 0],
-                [0, 0, 1, 1, 0, 0, 0, 1, 0, 0],
-                [1, 1, 1, 1, 1, 0, 1, 1, 1, 1],
-                [1, 1, 1, 1, 0, 0, 1, 1, 1, 1],
-                [1, 1, 1, 0, 1, 1, 0, 1, 1, 1],
-                [0, 0, 0, 0, 1, 1, 0, 0, 0, 0],
+                [1, 1, 1, 1, 2, 2, 1, 1, 1, 1],
+                [1, 1, 1, 2, 2, 2, 2, 1, 1, 1],
+                [2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+                [2, 2, 2, 2, 2, 1, 2, 2, 2, 2],
+                [1, 2, 2, 1, 2, 1, 2, 1, 2, 1],
+                [1, 1, 2, 2, 1, 1, 1, 2, 1, 1],
+                [2, 2, 2, 2, 2, 1, 2, 2, 2, 2],
+                [2, 2, 2, 2, 1, 1, 2, 2, 2, 2],
+                [2, 2, 2, 1, 2, 2, 1, 2, 2, 2],
+                [1, 1, 1, 1, 2, 2, 1, 1, 1, 1],
             ];
             const solver = new NonogramSolver();
             let history: GridHistory = [];
@@ -216,23 +216,23 @@ describe("Nonogram Solver", () => {
             }
 
             const EXPECTED_SOLUTION = [
-                [0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0],
-                [0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0],
-                [0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0],
-                [0, 0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0],
-                [0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0],
+                [1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1],
+                [1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1],
+                [1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1],
+                [1, 1, 1, 2, 1, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1],
+                [1, 1, 1, 2, 1, 1, 1, 2, 2, 2, 2, 2, 1, 1, 1],
                 //
-                [0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0],
-                [1, 1, 0, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1],
-                [1, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1],
-                [1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1],
-                [1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+                [1, 2, 2, 2, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 1],
+                [2, 2, 1, 2, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2],
+                [2, 1, 1, 2, 2, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2],
+                [2, 1, 1, 2, 2, 2, 1, 1, 2, 2, 2, 2, 2, 2, 2],
+                [2, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
                 //
-                [1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1],
-                [0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0],
-                [0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0],
-                [0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0],
-                [0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0],
+                [2, 2, 1, 1, 1, 2, 2, 2, 2, 2, 1, 1, 2, 2, 2],
+                [1, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 1],
+                [1, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 2, 1],
+                [1, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 1],
+                [1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1],
             ];
             const solver = new NonogramSolver();
             let history: GridHistory = [];
@@ -247,10 +247,10 @@ describe("messing around", () => {
     }
 
     test("grids are same works", () => {
-        const grid1: Array<Array<Square>> = [[1, 1, 1, 1, 1], [0, 0, 0, 0, 0]];
-        const grid2: Array<Array<Square>> = [[1, 1, 1, 1, 1], [0, 0, 0, 0, 0]];;
-        const grid3: Array<Array<Square>> = [[1, 1, 1, 1, 0], [1, 0, 1, 0, 1]];
-        const grid4: Array<Array<Square>> = [[1, 1, 1, 1, 0], [1, 0, 1, 0, 1]];
+        const grid1: Array<Array<Square>> = [[2, 2, 2, 2, 2], [1, 1, 1, 1, 1]];
+        const grid2: Array<Array<Square>> = [[2, 2, 2, 2, 2], [1, 1, 1, 1, 1]];;
+        const grid3: Array<Array<Square>> = [[2, 2, 2, 2, 1], [2, 1, 2, 1, 2]];
+        const grid4: Array<Array<Square>> = [[2, 2, 2, 2, 1], [2, 1, 2, 1, 2]];
 
         expect(gridsAreSame(grid1, grid2)).toBe(true);
         expect(gridsAreSame(grid3, grid4)).toBe(true);

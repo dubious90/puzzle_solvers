@@ -2,9 +2,9 @@ import assert from "assert";
 
 
 export enum Square {
+    MAYBE,
     NO,
     YES,
-    MAYBE
 }
 
 export enum HistoryResolution {
