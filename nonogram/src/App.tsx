@@ -7,14 +7,6 @@ import { AppState } from './enums';
 import Sliders from './Sliders';
 import NonogramSolver, { Square, GridHistory } from './solver';
 
-interface NonogramTableProps {
-  gridSize: number,
-  rowPrompts: Array<Array<number>>,
-  columnPrompts: Array<Array<number>>,
-  setRowPrompts: (rows: Array<Array<number>>) => void,
-  setColumnPrompts: (cols: Array<Array<number>>) => void,
-}
-
 enum RowOrColumn {
   ROW,
   COLUMN,
@@ -23,7 +15,7 @@ enum RowOrColumn {
 interface PromptInputProps {
   // appState: AppState,
   gridSize: number,
-  onChange: ChangeEventHandler<HTMLInputElement>,
+  onChange: (prompt: Array<number>) => void,
   value: Array<number>,
   promptType: RowOrColumn,
   // If an error is added or removed, call this function.
@@ -81,18 +73,31 @@ function PromptInput({ gridSize, onChange, value, promptType, handleErrorChange 
   }
 }
 
-function NonogramTable({ gridSize, setRowPrompts, setColumnPrompts, rowPrompts, columnPrompts }: NonogramTableProps) {
+
+function App() {
+  const [appState, setAppState] = useState<AppState>(AppState.FORMING_PUZZLE);
+  const [gridSize, setGridSize] = useState<number>(10);
+  const [gridHistory, setGridHistory] = useState<GridHistory>([]);
+  const [currentHistoryIndex, setCurrentHistoryIndex] = useState<number>(0);
+  const [rowPrompts, setRowPrompts] = useState<Array<Array<number>>>([]);
+  const [columnPrompts, setColumnPrompts] = useState<Array<Array<number>>>([]);
+
+  function handleGridSizeSlider(newGridSize: number) {
+    setGridSize(newGridSize);
+
+  }
+
   let headers: Array<ReactElement> = [<TableCell></TableCell>];
   let rows: Array<ReactElement> = [];
-  const handleRowChange = (index: number, newValue: number) => {
+  const handleRowChange = (index: number, newPrompt: Array<number>) => {
     let newPrompts = rowPrompts.slice();
-    newPrompts[index][0] = newValue;
+    // newPrompts[index][0] = newValue;
     setRowPrompts(newPrompts);
   };
 
-  const handleColumnChange = (index: number, newValue: number) => {
+  const handleColumnChange = (index: number, newPrompt: Array<number>) => {
     let newPrompts = columnPrompts.slice();
-    newPrompts[index][0] = newValue;
+    // newPrompts[index][0] = newValue;
     setColumnPrompts(newPrompts);
   }
 
@@ -109,46 +114,23 @@ function NonogramTable({ gridSize, setRowPrompts, setColumnPrompts, rowPrompts, 
         promptType={RowOrColumn.COLUMN}
         gridSize={gridSize}
         value={columnPrompts[i]}
-        onChange={(e: ChangeEvent<HTMLInputElement>) => { handleRowChange(i, parseInt(e.target.value)) }}
+        onChange={(prompt) => { handleRowChange(i, prompt) }}
         handleErrorChange={addOrRemoveError}
       />
     );
 
     const cells = new Array(gridSize).fill(<TableCell className='nonogramCell'><div className='cellDiv'></div></TableCell>);
-    cells.unshift(<PromptInput promptType={RowOrColumn.ROW} gridSize={gridSize} value={rowPrompts[i]} onChange={() => { }} handleErrorChange={addOrRemoveError} />);
+    cells.unshift(<PromptInput
+      promptType={RowOrColumn.ROW}
+      gridSize={gridSize}
+      value={rowPrompts[i]}
+      onChange={(prompt) => { handleColumnChange(i, prompt) }}
+      handleErrorChange={addOrRemoveError} />);
     rows.push(
       <TableRow>
         {cells}
       </TableRow>
     );
-  }
-  return (
-    <TableContainer component={Paper}>
-      <Table sx={{ width: "auto", margin: "0 auto" }} id="nonogramTable" aria-label="nonogramTable">
-        <TableHead>
-          <TableRow>
-            {headers}
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {rows}
-        </TableBody>
-      </Table>
-    </TableContainer>
-  );
-}
-
-function App() {
-  const [appState, setAppState] = useState<AppState>(AppState.FORMING_PUZZLE);
-  const [gridSize, setGridSize] = useState<number>(10);
-  const [gridHistory, setGridHistory] = useState<GridHistory>([]);
-  const [currentHistoryIndex, setCurrentHistoryIndex] = useState<number>(0);
-  const [rowPrompts, setRowPrompts] = useState<Array<Array<number>>>([]);
-  const [columnPrompts, setColumnPrompts] = useState<Array<Array<number>>>([]);
-
-  function handleGridSizeSlider(newGridSize: number) {
-    setGridSize(newGridSize);
-
   }
 
   return (
@@ -162,7 +144,18 @@ function App() {
         currentHistoryIndex={currentHistoryIndex}
       />
       <Typography>Click on the prompts to edit. All prompts should be comma delimited lists of numbers (e.g. 5 or 2,4,2)</Typography>
-      <NonogramTable gridSize={gridSize} setColumnPrompts={setColumnPrompts} setRowPrompts={setRowPrompts} rowPrompts={rowPrompts} columnPrompts={columnPrompts} />
+      <TableContainer component={Paper}>
+        <Table sx={{ width: "auto", margin: "0 auto" }} id="nonogramTable" aria-label="nonogramTable">
+          <TableHead>
+            <TableRow>
+              {headers}
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {rows}
+          </TableBody>
+        </Table>
+      </TableContainer>
 
     </div>
   );
