@@ -171,7 +171,7 @@ describe("Nonogram Solver", () => {
             expect(solver.solveNonogram(MEDIUM_SPEC.ROWS, MEDIUM_SPEC.COLS, history)).toEqual(EXPECTED_SOLUTION);
         });
 
-        test("Solves a medium nonogram", () => {
+        test("Solves a large nonogram", () => {
             const LARGE_SPEC = {
                 ROWS: [
                     // first third
@@ -240,3 +240,22 @@ describe("Nonogram Solver", () => {
         });
     })
 });
+
+describe("messing around", () => {
+    function gridsAreSame(grid1: Array<Array<Square>>, grid2: Array<Array<Square>>) {
+        return grid1.join("|") === grid2.join("|");
+    }
+
+    test("grids are same works", () => {
+        const grid1: Array<Array<Square>> = [[1, 1, 1, 1, 1], [0, 0, 0, 0, 0]];
+        const grid2: Array<Array<Square>> = [[1, 1, 1, 1, 1], [0, 0, 0, 0, 0]];;
+        const grid3: Array<Array<Square>> = [[1, 1, 1, 1, 0], [1, 0, 1, 0, 1]];
+        const grid4: Array<Array<Square>> = [[1, 1, 1, 1, 0], [1, 0, 1, 0, 1]];
+
+        expect(gridsAreSame(grid1, grid2)).toBe(true);
+        expect(gridsAreSame(grid3, grid4)).toBe(true);
+        expect(gridsAreSame(grid1, grid3)).toBe(false);
+        expect(gridsAreSame(grid2, grid4)).toBe(false);
+
+    })
+})

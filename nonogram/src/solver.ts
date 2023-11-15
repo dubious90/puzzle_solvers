@@ -7,49 +7,16 @@ export enum Square {
     MAYBE
 }
 
-const MEDIUM_SPEC = {
-    ROWS: [
-        [2, 2],
-        [6],
-        [1, 3],
-        [1, 4, 1],
-        [10],
-        [10],
-        [3, 3],
-        [2, 2],
-        [4],
-        [3],
-    ],
-    COLS: [
-        [8],
-        [2, 5],
-        [3, 1, 1],
-        [5, 2],
-        [6, 1],
-        [2, 3, 1],
-        [3],
-        [3],
-        [4],
-        [5],
-    ],
+export enum HistoryResolution {
+    // Every time a square is updated, create a history node.
+    EVERY_STEP,
+    // Every time a row or column is updated, create a history node.
+    EVERY_ROW_OR_COLUMN,
+    // Every iteration of going through the puzzle, create a history node.
+    ON_PASSTHROUGH,
+    // Never create history nodes.
+    NEVER,
 }
-
-const TRIVIAL_SPEC = {
-    ROWS: [
-        [5],
-        [3],
-        [3],
-        [3],
-        [5],
-    ],
-    COLS: [
-        [1, 1],
-        [5],
-        [5],
-        [5],
-        [1, 1],
-    ],
-};
 
 function copyTwoDimensionalArray(oldArray: Array<Array<Square>>) {
     let newArray: Array<Array<Square>> = [];
@@ -80,6 +47,11 @@ export type GridHistory = Array<Array<Array<Square>>>;
 export default class NonogramSolver {
     private initialPossibilityMap = new Map<number, Map<string, Array<Array<Square>>>>;
     private allPermutations = new Map<number, Array<Array<Square>>>;
+    private historyResolution = HistoryResolution.EVERY_ROW_OR_COLUMN;
+
+    setHistoryResolution(resolution: HistoryResolution) {
+        this.historyResolution = resolution;
+    }
 
     getPermutations(gridSize: number) {
         let permutations = this.allPermutations.get(gridSize);
@@ -240,7 +212,37 @@ export default class NonogramSolver {
         return readableGrid;
     }
 
-    solveNonogram(rowPrompts: Array<Array<number>>, colPrompts: Array<Array<number>>, history: GridHistory = []) {
+    /**
+     * Adds the current grid to history, if and only if:
+     *     the specified resolution matches the desired resolution
+     *     the last history entry isn't the same as the current history entry
+     * 
+     * @param grid 
+     * @param history
+     * @param desiredResolution 
+     * @param checkGridChanged
+     */
+    addToHistory(grid: Grid, history: GridHistory, desiredResolution: HistoryResolution, checkGridChanged: Boolean = true) {
+        function gridsAreSame(grid1: Array<Array<Square>>, grid2: Array<Array<Square>>) {
+            return grid1.join("|") === grid2.join("|");
+        }
+
+        if (this.historyResolution === desiredResolution) {
+            if (!checkGridChanged || history.length === 0) {
+                history.push(this.getReadableGrid(grid));
+            }
+            else {
+                const readableGrid = this.getReadableGrid(grid);
+                if (!gridsAreSame(readableGrid, history[history.length - 1])) {
+                    history.push(readableGrid);
+                }
+            }
+
+        }
+    }
+
+    solveNonogram(
+        rowPrompts: Array<Array<number>>, colPrompts: Array<Array<number>>, history: GridHistory = []) {
         assert(rowPrompts.length === colPrompts.length);
         let grid = this.createGrid(rowPrompts, colPrompts);
 
@@ -253,17 +255,21 @@ export default class NonogramSolver {
                     this.filterCurrentValuesToPossibilities(grid.rows[row], (col, val) => {
                         didSomething = true;
                         this.setSquareOnGrid(grid, row, col, val);
+                        this.addToHistory(grid, history, HistoryResolution.EVERY_STEP, false);
                     });
+                    this.addToHistory(grid, history, HistoryResolution.EVERY_ROW_OR_COLUMN);
                 }
-                history.push(this.getReadableGrid(grid));
+                this.addToHistory(grid, history, HistoryResolution.ON_PASSTHROUGH);
 
                 for (let col = 0; col < grid.rows.length; col++) {
                     this.filterCurrentValuesToPossibilities(grid.cols[col], (row, val) => {
                         didSomething = true;
                         this.setSquareOnGrid(grid, row, col, val);
+                        this.addToHistory(grid, history, HistoryResolution.EVERY_STEP, false);
                     });
+                    this.addToHistory(grid, history, HistoryResolution.EVERY_ROW_OR_COLUMN);
                 }
-                history.push(this.getReadableGrid(grid));
+                this.addToHistory(grid, history, HistoryResolution.ON_PASSTHROUGH);
             }
         }
         catch (e) {

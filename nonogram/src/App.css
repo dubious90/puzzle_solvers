@@ -32,7 +32,27 @@
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }
+}
+
+.nonogramCell {
+  border: 1px solid black;
+  width: 2.5em;
+  padding: 1px;
+}
+
+.nonogramCell div.cellDiv {
+  aspect-ratio: 1/1;
+  padding: 0px;
+}
+
+.promptInput {
+  width: 2.5em;
+}
+
+table.nonogramTable th {
+  padding: 1px;
 }
