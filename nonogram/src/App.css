@@ -40,17 +40,17 @@
 
 .nonogramCell {
   border: 1px solid black;
-  width: 1em;
-  padding: 1px;
+  width: .5em !important;
+  /* padding: 1px ; */
+}
+
+.promptInput {
+  width: .5em;
 }
 
 .nonogramCell div.cellDiv {
   aspect-ratio: 1/1;
   padding: 0px;
-}
-
-.promptInput {
-  width: 2.5em;
 }
 
 table.nonogramTable th {

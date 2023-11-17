@@ -44,9 +44,17 @@ interface Grid {
 
 export type GridHistory = Array<Array<Array<Square>>>;
 
+function getReadableGrid(grid: Grid): Array<Array<Square>> {
+    let readableGrid: Array<Array<Square>> = [];
+    grid.rows.forEach((row) => {
+        readableGrid.push(row.current.slice());
+    });
+    return readableGrid;
+}
+
 export default class NonogramSolver {
-    private initialPossibilityMap = new Map<number, Map<string, Array<Array<Square>>>>;
-    private allPermutations = new Map<number, Array<Array<Square>>>;
+    private initialPossibilityMap = new Map<number, Map<string, Array<Array<Square>>>>();
+    private allPermutations = new Map<number, Array<Array<Square>>>();
     private historyResolution = HistoryResolution.EVERY_ROW_OR_COLUMN;
 
     setHistoryResolution(resolution: HistoryResolution) {
@@ -56,7 +64,7 @@ export default class NonogramSolver {
     getPermutations(gridSize: number) {
         let permutations = this.allPermutations.get(gridSize);
         if (permutations) {
-            return permutations;
+            // return permutations;
         }
 
         permutations = [[]];
@@ -204,14 +212,6 @@ export default class NonogramSolver {
         this.setSquareOnRowCol(grid.cols[col], row, val);
     }
 
-    getReadableGrid(grid: Grid): Array<Array<Square>> {
-        let readableGrid: Array<Array<Square>> = [];
-        grid.rows.forEach((row) => {
-            readableGrid.push(row.current);
-        });
-        return readableGrid;
-    }
-
     /**
      * Adds the current grid to history, if and only if:
      *     the specified resolution matches the desired resolution
@@ -229,15 +229,16 @@ export default class NonogramSolver {
 
         if (this.historyResolution === desiredResolution) {
             if (!checkGridChanged || history.length === 0) {
-                history.push(this.getReadableGrid(grid));
+                const readableGrid = getReadableGrid(grid);
+                history.push(readableGrid);
             }
             else {
-                const readableGrid = this.getReadableGrid(grid);
+                const readableGrid = getReadableGrid(grid);
+
                 if (!gridsAreSame(readableGrid, history[history.length - 1])) {
                     history.push(readableGrid);
                 }
             }
-
         }
     }
 
@@ -276,7 +277,7 @@ export default class NonogramSolver {
             console.log(e);
         }
 
-        return this.getReadableGrid(grid);
+        return getReadableGrid(grid);
     }
 
 };

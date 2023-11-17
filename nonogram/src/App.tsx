@@ -1,11 +1,11 @@
-import React, { ChangeEvent, ChangeEventHandler, ReactElement, useState } from 'react';
+import React, { ReactElement, useState } from 'react';
 import './App.css';
 
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography, Paper } from '@mui/material';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography, Paper } from '@mui/material';
 
 import { AppState } from './enums';
 import Sliders from './Sliders';
-import NonogramSolver, { Square, GridHistory } from './solver';
+import NonogramSolver, { Square, GridHistory, HistoryResolution } from './solver';
 import NonogramButtons, { ButtonClickAction } from './NonogramButtons';
 
 enum RowOrColumn {
@@ -108,7 +108,10 @@ function App() {
   const [rowPrompts, setRowPrompts] = useState<number[][]>([]);
   const [columnPrompts, setColumnPrompts] = useState<number[][]>([]);
   const [errorCount, setErrorCount] = useState<number>(0);
-  const [currentGridState, setCurrentGridState] = useState<Square[][]>([]);
+  // const [currentGridState, setCurrentGridState] = useState<Square[][]>([]);
+  const [nonogramSolver, setNonogramSolver] = useState(new NonogramSolver());
+
+  const currentGridState = appState === AppState.ITERATING_HISTORY ? gridHistory[currentHistoryIndex] : [];
 
   function handleGridSizeSlider(newGridSize: number) {
     setGridSize(newGridSize);
@@ -142,11 +145,21 @@ function App() {
 
   const handleButtonClick = (action: ButtonClickAction) => {
     if (action === ButtonClickAction.SOLVE_PUZZLE) {
-      const solver = new NonogramSolver();
+      let solver = nonogramSolver;
+      solver.setHistoryResolution(HistoryResolution.EVERY_ROW_OR_COLUMN);
       const history: GridHistory = [];
-      const solution = solver.solveNonogram(rowPrompts, columnPrompts, history);
+      solver.solveNonogram(rowPrompts, columnPrompts, history);
       setGridHistory(history);
       setAppState(AppState.ITERATING_HISTORY);
+      // setCurrentGridState(solution);
+      setCurrentHistoryIndex(history.length - 1);
+      setNonogramSolver(solver);
+    }
+    else if (action === ButtonClickAction.BACK_TO_PUZZLE_CREATION) {
+      setAppState(AppState.FORMING_PUZZLE);
+      setCurrentHistoryIndex(0);
+      setGridHistory([]);
+      // setCurrentGridState([]);
     }
   }
 
@@ -162,7 +175,21 @@ function App() {
       />
     );
 
-    const cells = new Array(gridSize).fill(<TableCell className='nonogramCell'><div className='cellDiv'></div></TableCell>);
+    const currentRow = currentGridState[i] || [];
+    const cells: ReactElement[] = [];
+    for (let j = 0; j < gridSize; j++) {
+      const square: Square = currentRow[j] || Square.MAYBE;
+      if (square === Square.YES) {
+        cells.push(<TableCell size="small" style={{ background: 'gray' }} className='nonogramCell'><div className='cellDiv'>&#x2713;</div></TableCell>);
+      }
+      else if (square === Square.NO) {
+        cells.push(<TableCell size="small" className='nonogramCell'><div className='cellDiv'>X</div></TableCell>);
+      }
+      else {
+        cells.push(<TableCell size="small" className='nonogramCell'><div className='cellDiv'>&nbsp;</div></TableCell>);
+      }
+    }
+
     cells.unshift(<PromptInput
       promptType={RowOrColumn.ROW}
       gridSize={gridSize}
