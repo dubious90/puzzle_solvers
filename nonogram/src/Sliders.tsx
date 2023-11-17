@@ -21,7 +21,7 @@ export default function Sliders({ appState, gridSize, gridSizeOnChange, historyS
                         aria-label="gridSize"
                         value={gridSize}
                         valueLabelDisplay="on"
-                        step={1}
+                        step={5}
                         marks
                         min={5}
                         max={15}
