@@ -16,6 +16,8 @@ export enum HistoryResolution {
     ON_PASSTHROUGH,
     // Never create history nodes.
     NEVER,
+    // Matches all possible history resolutions.
+    MATCH_ALL,
 }
 
 function copyTwoDimensionalArray(oldArray: Array<Array<Square>>) {
@@ -227,7 +229,7 @@ export default class NonogramSolver {
             return grid1.join("|") === grid2.join("|");
         }
 
-        if (this.historyResolution === desiredResolution) {
+        if (this.historyResolution === desiredResolution || desiredResolution === HistoryResolution.MATCH_ALL) {
             if (!checkGridChanged || history.length === 0) {
                 const readableGrid = getReadableGrid(grid);
                 history.push(readableGrid);
@@ -247,6 +249,7 @@ export default class NonogramSolver {
         assert(rowPrompts.length === colPrompts.length);
         let grid = this.createGrid(rowPrompts, colPrompts);
 
+        this.addToHistory(grid, history, HistoryResolution.MATCH_ALL, false);
         let didSomething = true;
         try {
             while (didSomething) {
