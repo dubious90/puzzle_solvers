@@ -1,10 +1,91 @@
+import NonogramSolver, { HistoryResolution, Square } from "./solver";
+
 export interface ExamplePuzzle {
     rows: number[][],
     columns: number[][],
 }
 
-export function randomPuzzle() {
+function getPromptForRowCol(rowCol: Square[]) {
+    let prompt: number[] = [];
+    let current = 0;
+    rowCol.forEach((square: Square) => {
+        if (square === Square.YES) {
+            current++;
+        }
+        else if (square === Square.NO) {
+            if (current > 0) {
+                prompt.push(current);
+                current = 0;
+            }
+        }
+        else {
+            console.error("this shouldn't happen");
+        }
+    });
+    if (current > 0) {
+        prompt.push(current);
+    }
+    return prompt;
+}
 
+function solutionToPrompts(solution: Square[][]) {
+    let puzzle: ExamplePuzzle = {
+        rows: [],
+        columns: [],
+    }
+    for (let i = 0; i < solution.length; i++) {
+        const row = solution[i];
+        const column = solution.map(row => {
+            return row[i];
+        });
+        puzzle.rows.push(getPromptForRowCol(row));
+        puzzle.columns.push(getPromptForRowCol(column));
+    }
+    return puzzle;
+}
+
+function puzzleIsSolvable(solver: NonogramSolver, puzzle: ExamplePuzzle) {
+    const solution: Square[][] = solver.solveNonogram(puzzle.rows, puzzle.columns, []);
+    let solvable = true;
+    solution.forEach((row) => {
+        row.forEach((square: Square) => {
+            if (square === Square.MAYBE) {
+                solvable = false;
+            }
+        });
+    });
+    return solvable;
+}
+
+export function getRandomPuzzle(gridSize: number) {
+    let solver = new NonogramSolver();
+    solver.setHistoryResolution(HistoryResolution.NEVER);
+    return randomPuzzle(gridSize, solver);
+}
+
+function randomPuzzle(gridSize: number, solver: NonogramSolver): ExamplePuzzle {
+    let solution: Square[][] = [];
+    for (let i = 0; i < gridSize; i++) {
+        let row: Square[] = [];
+        for (let j = 0; j < gridSize; j++) {
+            if (Math.random() < .5) {
+                row.push(Square.YES);
+            }
+            else {
+                row.push(Square.NO);
+            }
+        }
+        solution.push(row);
+    }
+
+    const puzzle: ExamplePuzzle = solutionToPrompts(solution);
+
+    if (!puzzleIsSolvable(solver, puzzle)) {
+        console.log("generated unsolvable puzzle, trying again");
+        return randomPuzzle(gridSize, solver);
+    }
+
+    return puzzle;
 }
 
 export function getExamplePuzzle(gridSize: number): ExamplePuzzle {

@@ -8,7 +8,7 @@ import Sliders from './Sliders';
 import NonogramSolver, { Square, GridHistory, HistoryResolution } from './solver';
 import NonogramButtons, { ButtonClickAction } from './NonogramButtons';
 import PromptInput from './PromptInput';
-import { ExamplePuzzle, getExamplePuzzle, randomPuzzle } from './puzzle-creator';
+import { ExamplePuzzle, getExamplePuzzle, getRandomPuzzle } from './puzzle-creator';
 
 interface HistoryResolutionSelectorProps {
   value: HistoryResolution,
@@ -110,6 +110,11 @@ function App() {
     }
     else if (action === ButtonClickAction.EXAMPLE_PUZZLE) {
       let puzzle: ExamplePuzzle = getExamplePuzzle(gridSize);
+      setRowPrompts(puzzle.rows);
+      setColumnPrompts(puzzle.columns);
+    }
+    else if (action === ButtonClickAction.RANDOM_PUZZLE) {
+      let puzzle: ExamplePuzzle = getRandomPuzzle(gridSize);
       setRowPrompts(puzzle.rows);
       setColumnPrompts(puzzle.columns);
     }
