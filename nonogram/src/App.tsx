@@ -40,19 +40,33 @@ function App() {
   const [gridSize, setGridSize] = useState<number>(10);
   const [gridHistory, setGridHistory] = useState<GridHistory>([]);
   const [currentHistoryIndex, setCurrentHistoryIndex] = useState<number>(0);
-  const [rowPrompts, setRowPrompts] = useState<number[][]>([]);
-  const [columnPrompts, setColumnPrompts] = useState<number[][]>([]);
+  const [rowPromptsByGridSize, setRowPromptsByGridSize] = useState(new Map<number, number[][]>());
+  const [columnPromptsByGridSize, setColumnPromptsByGridSize] = useState(new Map<number, number[][]>());
   const [errorCount, setErrorCount] = useState<number>(0);
   const [historyResolution, setHistoryResolution] = useState<HistoryResolution>(HistoryResolution.EVERY_ROW_OR_COLUMN);
   const [nonogramSolver, setNonogramSolver] = useState(new NonogramSolver());
 
+  const rowPrompts: number[][] = rowPromptsByGridSize.get(gridSize) || [];
+  const columnPrompts: number[][] = columnPromptsByGridSize.get(gridSize) || [];
   const currentGridState = appState === AppState.ITERATING_HISTORY ? gridHistory[currentHistoryIndex] : [];
+
+  function setRowPrompts(prompts: number[][]) {
+    const newMap = new Map(rowPromptsByGridSize);
+    newMap.set(gridSize, prompts);
+    setRowPromptsByGridSize(newMap);
+  }
+
+  function setColumnPrompts(prompts: number[][]) {
+    const newMap = new Map(columnPromptsByGridSize);
+    newMap.set(gridSize, prompts);
+    setColumnPromptsByGridSize(newMap);
+  }
 
   function handleGridSizeSlider(newGridSize: number) {
     setGridSize(newGridSize);
   }
 
-  let headers: ReactElement[] = [<TableCell></TableCell>];
+  let headers: ReactElement[] = [<TableCell key="spacer"></TableCell>];
   let rows: ReactElement[] = [];
   const handleRowChange = (index: number, newPrompt: number[]) => {
     let newPrompts = rowPrompts.slice();
@@ -110,6 +124,8 @@ function App() {
         value={columnPrompts[i]}
         onChange={(prompt) => { handleColumnChange(i, prompt) }}
         handleErrorChange={addOrRemoveError}
+        reactKey={"columnPrompt" + i}
+        key={"columnPromptInput" + i}
       />
     );
 
@@ -117,14 +133,15 @@ function App() {
     const cells: ReactElement[] = [];
     for (let j = 0; j < gridSize; j++) {
       const square: Square = currentRow[j] || Square.MAYBE;
+      const reactKey = "cell_" + i + "_" + j;
       if (square === Square.YES) {
-        cells.push(<TableCell size="small" style={{ background: 'gray' }} className='nonogramCell'><div className='cellDiv'>&#x2713;</div></TableCell>);
+        cells.push(<TableCell key={reactKey} size="small" style={{ background: 'gray' }} className='nonogramCell'><div key={reactKey + "_div"} className='cellDiv'>&#x2713;</div></TableCell>);
       }
       else if (square === Square.NO) {
-        cells.push(<TableCell size="small" className='nonogramCell'><div className='cellDiv'>X</div></TableCell>);
+        cells.push(<TableCell key={reactKey} size="small" className='nonogramCell'><div key={reactKey + "_div"} className='cellDiv'>X</div></TableCell>);
       }
       else {
-        cells.push(<TableCell size="small" className='nonogramCell'><div className='cellDiv'>&nbsp;</div></TableCell>);
+        cells.push(<TableCell key={reactKey} size="small" className='nonogramCell'><div key={reactKey + "_div"} className='cellDiv'>&nbsp;</div></TableCell>);
       }
     }
 
@@ -133,9 +150,12 @@ function App() {
       gridSize={gridSize}
       value={rowPrompts[i]}
       onChange={(prompt) => { handleRowChange(i, prompt) }}
-      handleErrorChange={addOrRemoveError} />);
+      handleErrorChange={addOrRemoveError}
+      reactKey={"rowPrompt" + i}
+      key={"rowPromptInput" + i}
+    />);
     rows.push(
-      <TableRow>
+      <TableRow key={"row_" + i}>
         {cells}
       </TableRow>
     );
@@ -162,7 +182,7 @@ function App() {
       <TableContainer component={Paper} sx={{ paddingBottom: "10px" }}>
         <Table sx={{ width: "auto", margin: "0 auto" }} id="nonogramTable" aria-label="nonogramTable">
           <TableHead>
-            <TableRow>
+            <TableRow key="header_row">
               {headers}
             </TableRow>
           </TableHead>

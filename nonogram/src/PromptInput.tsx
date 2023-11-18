@@ -11,9 +11,10 @@ interface PromptInputProps {
     promptType: RowOrColumn,
     // If an error is added or removed, call this function.
     handleErrorChange: (inErrorState: boolean) => void,
+    reactKey: string,
 }
 
-export default function PromptInput({ gridSize, onChange, value, promptType, handleErrorChange }: PromptInputProps) {
+export default function PromptInput({ gridSize, onChange, value, promptType, handleErrorChange, reactKey }: PromptInputProps) {
     const [editing, setEditing] = useState(false);
     const [error, setError] = useState("");
     let sx: any = { padding: "2px", maxWidth: "100px" };
@@ -66,7 +67,7 @@ export default function PromptInput({ gridSize, onChange, value, promptType, han
 
     if (editing) {
         return (
-            <TableCell title={titleText} align={align} sx={sx}>
+            <TableCell key={reactKey} title={titleText} align={align} sx={sx}>
                 <input
                     autoFocus
                     className="promptInput"
@@ -74,17 +75,18 @@ export default function PromptInput({ gridSize, onChange, value, promptType, han
                     onBlur={(e) => { handleChange(e.target.value) }}
                     defaultValue={textValue}
                     onKeyUp={(e) => { if (e.key === "Enter") handleChange((e.target as HTMLInputElement).value) }}
+                    key={reactKey + "_input"}
                 />
             </TableCell>
         );
     }
     else {
         return (
-            <TableCell title={titleText} align={align} sx={sx} onClick={() => { setEditing(true) }}>
-                <span>
+            <TableCell key={reactKey} title={titleText} align={align} sx={sx} onClick={() => { setEditing(true) }}>
+                <span key={reactKey + "_span"}>
                     {textValue}
                 </span>
-            </TableCell>
+            </TableCell >
         );
     }
 }
