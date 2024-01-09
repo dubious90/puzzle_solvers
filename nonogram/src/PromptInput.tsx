@@ -30,11 +30,16 @@ interface PromptInputProps {
  * and after the YES blocks. A block of 7 is not allowed for 3,4 as there must be at least one NO
  * space between the YES blocks.
  */
-export default function PromptInput({ onChange, value, promptType, promptError, reactKey }: PromptInputProps) {
+export default function PromptInput({ appState, onChange, value, promptType, promptError, reactKey }: PromptInputProps) {
     // When editing, we show an input that the user can change.
     const [editing, setEditing] = useState(false);
 
-    let sx: any = { padding: "2px", maxWidth: "100px" };
+    let sx: any = {
+        padding: "2px",
+        maxWidth: "100px",
+        borderRight: "1px solid black",
+        borderBottom: "1px solid black",
+    };
     if (promptError.length > 0) {
         sx.border = "3px solid red";
     }
@@ -77,13 +82,20 @@ export default function PromptInput({ onChange, value, promptType, promptError, 
                     defaultValue={textValue}
                     onKeyUp={(e) => { if (e.key === "Enter") handleChange((e.target as HTMLInputElement).value) }}
                     key={reactKey + "_input"}
+                    style={{
+                        textAlign: "center",
+                        position: "relative",
+                        width: "80px",
+                        marginLeft: "-50vw",
+                        marginRight: "-50vw",
+                    }}
                 />
             </TableCell>
         );
     }
     else {
         return (
-            <TableCell key={reactKey} title={titleText} align={align} sx={sx} onClick={() => { setEditing(true) }}>
+            <TableCell key={reactKey} title={titleText} align={align} sx={sx} onClick={() => { if (appState === AppState.FORMING_PUZZLE) setEditing(true) }}>
                 <span key={reactKey + "_span"}>
                     {textValue}
                 </span>

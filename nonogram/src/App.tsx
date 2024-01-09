@@ -158,13 +158,13 @@ function App() {
       const square: Square = currentRow[j] || Square.MAYBE;
       const reactKey = "cell_" + i + "_" + j;
       if (square === Square.YES) {
-        cells.push(<TableCell key={reactKey} size="small" style={{ background: 'gray' }} className='nonogramCell'><div key={reactKey + "_div"} className='cellDiv'>&#x2713;</div></TableCell>);
+        cells.push(<TableCell key={reactKey} size="small" style={{ background: 'gray', border: "1px solid gray" }}><div key={reactKey + "_div"} className='cellDiv'>&#x2713;</div></TableCell>);
       }
       else if (square === Square.NO) {
-        cells.push(<TableCell key={reactKey} size="small" className='nonogramCell'><div key={reactKey + "_div"} className='cellDiv'>X</div></TableCell>);
+        cells.push(<TableCell key={reactKey} size="small" style={{ border: "1px solid gray" }}><div key={reactKey + "_div"} className='cellDiv'>X</div></TableCell>);
       }
       else {
-        cells.push(<TableCell key={reactKey} size="small" className='nonogramCell'><div key={reactKey + "_div"} className='cellDiv'>&nbsp;</div></TableCell>);
+        cells.push(<TableCell key={reactKey} size="small" style={{ border: "1px solid gray" }}><div key={reactKey + "_div"} className='cellDiv'>&nbsp;</div></TableCell>);
       }
     }
 
