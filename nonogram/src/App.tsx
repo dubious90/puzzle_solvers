@@ -11,8 +11,11 @@ import PromptInput from './PromptInput';
 import { ExamplePuzzle, getExamplePuzzle, getRandomPuzzle } from './puzzle-creator';
 
 interface HistoryResolutionSelectorProps {
+  // The current value for history resolution to display.
   value: HistoryResolution,
+  // Sets the value of the history resolution as the select changes.
   onChange: (newValue: HistoryResolution) => void,
+  // The current app state, affects whether the select appears or not.
   appState: AppState,
 }
 
@@ -35,20 +38,36 @@ function HistoryResolutionSelector({ value, onChange, appState }: HistoryResolut
   );
 }
 
+function checkPromptForErrors(prompt: Array<number>, gridSize: number) {
+  if (!prompt) return "";
+  let newError = "";
+  let sum = prompt.reduce((a, b) => a + b, 0);
+
+  if (sum > gridSize) {
+    newError = "Prompt adds up to " + sum + " which is longer than the grid allows.";
+  }
+
+  return newError;
+}
+
 function App() {
+  // The state of the app, affects which elements appear and what they functionally enable.
   const [appState, setAppState] = useState<AppState>(AppState.FORMING_PUZZLE);
   const [gridSize, setGridSize] = useState<number>(10);
+  // Set by the nonogram solver, iterated through when ITERATING_HISTORY
   const [gridHistory, setGridHistory] = useState<GridHistory>([]);
   const [currentHistoryIndex, setCurrentHistoryIndex] = useState<number>(0);
+
+  // Stores the full set of prompts in a map keyed by gridSize, so changing the grid size does not remove effort.
   const [rowPromptsByGridSize, setRowPromptsByGridSize] = useState(new Map<number, number[][]>());
   const [columnPromptsByGridSize, setColumnPromptsByGridSize] = useState(new Map<number, number[][]>());
-  const [errorCount, setErrorCount] = useState<number>(0);
   const [historyResolution, setHistoryResolution] = useState<HistoryResolution>(HistoryResolution.EVERY_ROW_OR_COLUMN);
   const [nonogramSolver, setNonogramSolver] = useState(new NonogramSolver());
 
   const rowPrompts: number[][] = rowPromptsByGridSize.get(gridSize) || [];
   const columnPrompts: number[][] = columnPromptsByGridSize.get(gridSize) || [];
   const currentGridState = appState === AppState.ITERATING_HISTORY ? gridHistory[currentHistoryIndex] : [];
+  let errorInPrompts = false;
 
   function setRowPrompts(prompts: number[][]) {
     const newMap = new Map(rowPromptsByGridSize);
@@ -80,20 +99,17 @@ function App() {
     setColumnPrompts(newPrompts);
   }
 
-  const addOrRemoveError = (addError: boolean) => {
-    // DOES NOT WORK AT ALL. FIX LATER
-    if (addError) {
-      setErrorCount(errorCount + 1);
-    }
-    else {
-      if (errorCount > 0) {
-        setErrorCount(errorCount - 1);
-      }
-    }
-  }
-
+  /**
+   * Generic function for handling all of the actions the main buttons may take.
+   * 
+   * @param action Defines the button being clicked, determines what action to take.
+   */
   const handleButtonClick = (action: ButtonClickAction) => {
     if (action === ButtonClickAction.SOLVE_PUZZLE) {
+      if (errorInPrompts) {
+        alert("Please resolve any errors in the prompts before solving the puzzle");
+        return;
+      }
       let solver = nonogramSolver;
       solver.setHistoryResolution(historyResolution);
       const history: GridHistory = [];
@@ -121,14 +137,16 @@ function App() {
   }
 
   for (let i = 0; i < gridSize; i++) {
-
+    const columnPrompt = columnPrompts[i];
+    const columnPromptError = checkPromptForErrors(columnPrompt, gridSize);
+    if (columnPromptError) errorInPrompts = true;
     headers.push(
       <PromptInput
+        appState={appState}
         promptType={RowOrColumn.COLUMN}
-        gridSize={gridSize}
-        value={columnPrompts[i]}
+        value={columnPrompt}
         onChange={(prompt) => { handleColumnChange(i, prompt) }}
-        handleErrorChange={addOrRemoveError}
+        promptError={columnPromptError}
         reactKey={"columnPrompt" + i}
         key={"columnPromptInput" + i}
       />
@@ -150,12 +168,15 @@ function App() {
       }
     }
 
+    const rowPrompt = rowPrompts[i];
+    const rowPromptError = checkPromptForErrors(rowPrompt, gridSize);
+    if (rowPromptError) errorInPrompts = true;
     cells.unshift(<PromptInput
+      appState={appState}
       promptType={RowOrColumn.ROW}
-      gridSize={gridSize}
       value={rowPrompts[i]}
       onChange={(prompt) => { handleRowChange(i, prompt) }}
-      handleErrorChange={addOrRemoveError}
+      promptError={rowPromptError}
       reactKey={"rowPrompt" + i}
       key={"rowPromptInput" + i}
     />);

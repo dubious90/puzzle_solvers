@@ -1,69 +1,70 @@
-import React, { ReactElement, useState } from 'react';
+import React, { useState } from 'react';
 import { TableCell } from '@mui/material';
 
 import { AppState, RowOrColumn } from './enums';
 
 interface PromptInputProps {
-    // appState: AppState,
-    gridSize: number,
+    // The intent of the app in this moment. Affects editability of the prompt inputs.
+    appState: AppState,
+    // Called whenever the prompt is modified to store the value.
     onChange: (prompt: number[]) => void,
+    // The current value of the prompt. Defaults to [0].
     value: number[],
+    // Whether this prompt is for a row or column (affects presentation).
     promptType: RowOrColumn,
-    // If an error is added or removed, call this function.
-    handleErrorChange: (inErrorState: boolean) => void,
+    // If the current prompt is invalid, this is the relevant error message. Empty if valid.
+    promptError: string,
+    // Used to uniquely identify this element and all of its children for React rendering.
     reactKey: string,
 }
 
-export default function PromptInput({ gridSize, onChange, value, promptType, handleErrorChange, reactKey }: PromptInputProps) {
+/**
+ * A small input for enabling user to enter prompts for a nonogram table.
+ * 
+ * A prompt is an array of numbers that define how the grid can be completed correctly. If the grid
+ * is 10x10, then a prompt of 10 means that every square in the grid is marked as YES. A prompt of
+ * 0 would mean none of them are.
+ * 
+ * A prompt can be multiple numbers. 3,4 would mean that there is a sequence of 3 YES blocks
+ * followed by a different sequence of 4 yes blocks, with 3 NO blocks scattered before, between,
+ * and after the YES blocks. A block of 7 is not allowed for 3,4 as there must be at least one NO
+ * space between the YES blocks.
+ */
+export default function PromptInput({ onChange, value, promptType, promptError, reactKey }: PromptInputProps) {
+    // When editing, we show an input that the user can change.
     const [editing, setEditing] = useState(false);
-    const [error, setError] = useState("");
-    let sx: any = { padding: "2px", maxWidth: "100px" };
 
-    if (error.length > 0) {
+    let sx: any = { padding: "2px", maxWidth: "100px" };
+    if (promptError.length > 0) {
         sx.border = "3px solid red";
     }
 
     const align = promptType === RowOrColumn.ROW ? "right" : "center";
 
     function handleChange(newText: string) {
-        let newError = "";
+        let newValue: number[] = [];
         const validRegex = /^[0-9]+(,[0-9])*$/;
         if (!validRegex.test(newText)) {
-            newError = "Each prompt must be a comma-delimited string of numbers";
+            alert("Each prompt must be a comma-delimited string of numbers. Please re-enter.");
         }
         else {
             const promptTexts = newText.split(",");
-            let newValue: number[] = [];
-            let sum = 0;
             promptTexts.forEach((prompt) => {
                 const num = parseInt(prompt);
                 if (num === undefined) {
-                    console.log("This shouldn't happen");
-                    newError = "Each prompt must be a comma-delimited string of numbers";
+                    console.log("Supposedly impossible scenario encountered -- prompt didn't parse as number.");
                 }
-                sum = sum + num;
                 newValue.push(num);
             });
-
-            if (sum > gridSize) {
-                newError = "Prompt adds up to " + sum + " which is longer than the grid allows.";
-            }
-            else {
-                if (newError.length === 0) {
-                    onChange(newValue);
-                    setEditing(false);
-                }
-            }
         }
-        setError(newError);
-        handleErrorChange(error.length > 0);
+
+        onChange(newValue);
+        setEditing(false);
     }
 
     if (!value || value.length === 0) value = [0];
-
     const textValue = value.join(",");
-
-    let titleText = error.length > 0 ? error : "";
+    let titleText = promptError.length > 0 ? promptError : "";
 
     if (editing) {
         return (

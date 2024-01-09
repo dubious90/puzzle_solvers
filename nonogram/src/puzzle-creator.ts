@@ -5,6 +5,13 @@ export interface ExamplePuzzle {
     columns: number[][],
 }
 
+/**
+ * Given a completed row of YES and NO squares, determines the correct prompt that would enable
+ * that permutation.
+ * 
+ * @param rowCol The row to get the correct prompt for.
+ * @returns The prompt.
+ */
 function getPromptForRowCol(rowCol: Square[]) {
     let prompt: number[] = [];
     let current = 0;
@@ -28,7 +35,14 @@ function getPromptForRowCol(rowCol: Square[]) {
     return prompt;
 }
 
-function solutionToPrompts(solution: Square[][]) {
+/**
+ * Given a completed nonogram grid, determines all of the prompts that would lead to this solution.
+ * 
+ * @param solution A completed nonogram grid state.
+ * 
+ * @returns An ExamplePuzzle of row and column prompts.
+ */
+function solutionToPrompts(solution: Square[][]): ExamplePuzzle {
     let puzzle: ExamplePuzzle = {
         rows: [],
         columns: [],
@@ -44,6 +58,13 @@ function solutionToPrompts(solution: Square[][]) {
     return puzzle;
 }
 
+/**
+ * Given a set of prompts, determines if this puzzle is solvable.
+ * 
+ * @param solver The solver to determine solvability.
+ * @param puzzle The prompts defining the current nonogram.
+ * @returns Whether the puzzle is solvable or not.
+ */
 function puzzleIsSolvable(solver: NonogramSolver, puzzle: ExamplePuzzle) {
     const solution: Square[][] = solver.solveNonogram(puzzle.rows, puzzle.columns, []);
     let solvable = true;
@@ -57,12 +78,25 @@ function puzzleIsSolvable(solver: NonogramSolver, puzzle: ExamplePuzzle) {
     return solvable;
 }
 
-export function getRandomPuzzle(gridSize: number) {
+/**
+ * Returns a random solvable puzzle for the provided grid size.
+ * 
+ * @param gridSize The size of puzzle to create.
+ * @returns Example Puzzle of column and row prompts.
+ */
+export function getRandomPuzzle(gridSize: number): ExamplePuzzle {
     let solver = new NonogramSolver();
     solver.setHistoryResolution(HistoryResolution.NEVER);
     return randomPuzzle(gridSize, solver);
 }
 
+/**
+ * Returns a random solvable puzzle for the provided grid size.
+ * 
+ * @param gridSize The size of the puzzle to create.
+ * @param solver The solver to determine solvability.
+ * @returns Example Puzzle of column and row prompts.
+ */
 function randomPuzzle(gridSize: number, solver: NonogramSolver): ExamplePuzzle {
     let solution: Square[][] = [];
     for (let i = 0; i < gridSize; i++) {
@@ -88,6 +122,18 @@ function randomPuzzle(gridSize: number, solver: NonogramSolver): ExamplePuzzle {
     return puzzle;
 }
 
+/**
+ * Gets specifically provided example nonogram puzzles.
+ * 
+ * If the provided grid size is 5,10, or 15, this will always produce the same puzzle, much faster
+ * than generating a random puzzle.
+ * 
+ * For any other grid size, will produce a random puzzle.
+ * 
+ * @param gridSize The grid size to create a random puzzle for.
+ * 
+ * @returns A solvable ExamplePuzzle with row and column prompts.
+ */
 export function getExamplePuzzle(gridSize: number): ExamplePuzzle {
     if (gridSize === 5) {
         return {

@@ -3,11 +3,17 @@ import React from 'react';
 import { AppState } from './enums';
 
 interface SlidersProps {
+    // The intent of the app in this moment. Affects which sliders appear.
     appState: AppState,
+    // The current value for the nonogram grid size.
     gridSize: number,
+    // Called when the slider for grid size is changed.
     gridSizeOnChange: (event: Event, newValue: number | number[]) => void,
+    // The max value for the history slider.
     historySize: number,
+    // Called when the history slider is moved.
     historyOnChange: (event: Event, newValue: number | number[]) => void,
+    // The current index/value of the history slider.
     currentHistoryIndex: number
 }
 
