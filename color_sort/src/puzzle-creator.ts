@@ -1,4 +1,3 @@
-import { OutgoingMessage } from "http";
 import { useColor } from "react-color-palette";
 
 export function useRecommendedColors() {

@@ -1,4 +1,3 @@
-import assert from "assert";
 
 
 export enum Square {
@@ -303,7 +302,7 @@ export default class NonogramSolver {
      */
     solveNonogram(
         rowPrompts: Array<Array<number>>, colPrompts: Array<Array<number>>, history: GridHistory = []) {
-        assert(rowPrompts.length === colPrompts.length);
+        if (rowPrompts.length !== colPrompts.length) throw new Error("rowPrompts and colPrompts must be the same length");
         let grid = this.initializeGrid(rowPrompts, colPrompts);
 
         this.addToHistory(grid, history, HistoryResolution.MATCH_ALL);

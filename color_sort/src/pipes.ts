@@ -1,4 +1,4 @@
-import assert from "assert";
+
 
 function isPipeUniform4(pipe: Array<number>) {
     return (pipe[0] === pipe[1]
@@ -107,7 +107,7 @@ export function solvePipes(pipesInput: Array<Array<number>>) {
     history.add(pipesInput);
     while (finalSolution.length === 0 && solutions.length > 0) {
         const solution = solutions.shift();
-        assert(solution);
+        if (!solution) break;
         const currentPipes = solution[solution.length - 1].pipes;
 
         // If we've solved, return our solution.
