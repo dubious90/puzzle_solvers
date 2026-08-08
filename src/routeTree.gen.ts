@@ -12,6 +12,10 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as PuzzlesColorSortRouteRouteImport } from './routes/puzzles/color-sort/route'
 import { Route as PuzzlesNonogramRouteRouteImport } from './routes/puzzles/nonogram/route'
+import { Route as PuzzlesColorSortIndexRouteImport } from './routes/puzzles/color-sort/index'
+import { Route as PuzzlesColorSortSolutionRouteImport } from './routes/puzzles/color-sort/solution'
+import { Route as PuzzlesNonogramIndexRouteImport } from './routes/puzzles/nonogram/index'
+import { Route as PuzzlesNonogramSolutionRouteImport } from './routes/puzzles/nonogram/solution'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -28,35 +32,86 @@ const PuzzlesNonogramRouteRoute = PuzzlesNonogramRouteRouteImport.update({
   path: '/puzzles/nonogram',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PuzzlesColorSortIndexRoute = PuzzlesColorSortIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => PuzzlesColorSortRouteRoute,
+} as any)
+const PuzzlesColorSortSolutionRoute =
+  PuzzlesColorSortSolutionRouteImport.update({
+    id: '/solution',
+    path: '/solution',
+    getParentRoute: () => PuzzlesColorSortRouteRoute,
+  } as any)
+const PuzzlesNonogramIndexRoute = PuzzlesNonogramIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => PuzzlesNonogramRouteRoute,
+} as any)
+const PuzzlesNonogramSolutionRoute = PuzzlesNonogramSolutionRouteImport.update({
+  id: '/solution',
+  path: '/solution',
+  getParentRoute: () => PuzzlesNonogramRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/puzzles/color-sort': typeof PuzzlesColorSortRouteRoute
-  '/puzzles/nonogram': typeof PuzzlesNonogramRouteRoute
+  '/puzzles/color-sort': typeof PuzzlesColorSortRouteRouteWithChildren
+  '/puzzles/nonogram': typeof PuzzlesNonogramRouteRouteWithChildren
+  '/puzzles/color-sort/solution': typeof PuzzlesColorSortSolutionRoute
+  '/puzzles/nonogram/solution': typeof PuzzlesNonogramSolutionRoute
+  '/puzzles/color-sort/': typeof PuzzlesColorSortIndexRoute
+  '/puzzles/nonogram/': typeof PuzzlesNonogramIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/puzzles/color-sort': typeof PuzzlesColorSortRouteRoute
-  '/puzzles/nonogram': typeof PuzzlesNonogramRouteRoute
+  '/puzzles/color-sort/solution': typeof PuzzlesColorSortSolutionRoute
+  '/puzzles/nonogram/solution': typeof PuzzlesNonogramSolutionRoute
+  '/puzzles/color-sort': typeof PuzzlesColorSortIndexRoute
+  '/puzzles/nonogram': typeof PuzzlesNonogramIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/puzzles/color-sort': typeof PuzzlesColorSortRouteRoute
-  '/puzzles/nonogram': typeof PuzzlesNonogramRouteRoute
+  '/puzzles/color-sort': typeof PuzzlesColorSortRouteRouteWithChildren
+  '/puzzles/nonogram': typeof PuzzlesNonogramRouteRouteWithChildren
+  '/puzzles/color-sort/solution': typeof PuzzlesColorSortSolutionRoute
+  '/puzzles/nonogram/solution': typeof PuzzlesNonogramSolutionRoute
+  '/puzzles/color-sort/': typeof PuzzlesColorSortIndexRoute
+  '/puzzles/nonogram/': typeof PuzzlesNonogramIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/puzzles/color-sort' | '/puzzles/nonogram'
+  fullPaths:
+    | '/'
+    | '/puzzles/color-sort'
+    | '/puzzles/nonogram'
+    | '/puzzles/color-sort/solution'
+    | '/puzzles/nonogram/solution'
+    | '/puzzles/color-sort/'
+    | '/puzzles/nonogram/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/puzzles/color-sort' | '/puzzles/nonogram'
-  id: '__root__' | '/' | '/puzzles/color-sort' | '/puzzles/nonogram'
+  to:
+    | '/'
+    | '/puzzles/color-sort/solution'
+    | '/puzzles/nonogram/solution'
+    | '/puzzles/color-sort'
+    | '/puzzles/nonogram'
+  id:
+    | '__root__'
+    | '/'
+    | '/puzzles/color-sort'
+    | '/puzzles/nonogram'
+    | '/puzzles/color-sort/solution'
+    | '/puzzles/nonogram/solution'
+    | '/puzzles/color-sort/'
+    | '/puzzles/nonogram/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  PuzzlesColorSortRouteRoute: typeof PuzzlesColorSortRouteRoute
-  PuzzlesNonogramRouteRoute: typeof PuzzlesNonogramRouteRoute
+  PuzzlesColorSortRouteRoute: typeof PuzzlesColorSortRouteRouteWithChildren
+  PuzzlesNonogramRouteRoute: typeof PuzzlesNonogramRouteRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
@@ -82,13 +137,69 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PuzzlesNonogramRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/puzzles/color-sort/': {
+      id: '/puzzles/color-sort/'
+      path: '/'
+      fullPath: '/puzzles/color-sort/'
+      preLoaderRoute: typeof PuzzlesColorSortIndexRouteImport
+      parentRoute: typeof PuzzlesColorSortRouteRoute
+    }
+    '/puzzles/color-sort/solution': {
+      id: '/puzzles/color-sort/solution'
+      path: '/solution'
+      fullPath: '/puzzles/color-sort/solution'
+      preLoaderRoute: typeof PuzzlesColorSortSolutionRouteImport
+      parentRoute: typeof PuzzlesColorSortRouteRoute
+    }
+    '/puzzles/nonogram/': {
+      id: '/puzzles/nonogram/'
+      path: '/'
+      fullPath: '/puzzles/nonogram/'
+      preLoaderRoute: typeof PuzzlesNonogramIndexRouteImport
+      parentRoute: typeof PuzzlesNonogramRouteRoute
+    }
+    '/puzzles/nonogram/solution': {
+      id: '/puzzles/nonogram/solution'
+      path: '/solution'
+      fullPath: '/puzzles/nonogram/solution'
+      preLoaderRoute: typeof PuzzlesNonogramSolutionRouteImport
+      parentRoute: typeof PuzzlesNonogramRouteRoute
+    }
   }
 }
 
+interface PuzzlesColorSortRouteRouteChildren {
+  PuzzlesColorSortSolutionRoute: typeof PuzzlesColorSortSolutionRoute
+  PuzzlesColorSortIndexRoute: typeof PuzzlesColorSortIndexRoute
+}
+
+const PuzzlesColorSortRouteRouteChildren: PuzzlesColorSortRouteRouteChildren = {
+  PuzzlesColorSortSolutionRoute: PuzzlesColorSortSolutionRoute,
+  PuzzlesColorSortIndexRoute: PuzzlesColorSortIndexRoute,
+}
+
+const PuzzlesColorSortRouteRouteWithChildren =
+  PuzzlesColorSortRouteRoute._addFileChildren(
+    PuzzlesColorSortRouteRouteChildren,
+  )
+
+interface PuzzlesNonogramRouteRouteChildren {
+  PuzzlesNonogramSolutionRoute: typeof PuzzlesNonogramSolutionRoute
+  PuzzlesNonogramIndexRoute: typeof PuzzlesNonogramIndexRoute
+}
+
+const PuzzlesNonogramRouteRouteChildren: PuzzlesNonogramRouteRouteChildren = {
+  PuzzlesNonogramSolutionRoute: PuzzlesNonogramSolutionRoute,
+  PuzzlesNonogramIndexRoute: PuzzlesNonogramIndexRoute,
+}
+
+const PuzzlesNonogramRouteRouteWithChildren =
+  PuzzlesNonogramRouteRoute._addFileChildren(PuzzlesNonogramRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  PuzzlesColorSortRouteRoute: PuzzlesColorSortRouteRoute,
-  PuzzlesNonogramRouteRoute: PuzzlesNonogramRouteRoute,
+  PuzzlesColorSortRouteRoute: PuzzlesColorSortRouteRouteWithChildren,
+  PuzzlesNonogramRouteRoute: PuzzlesNonogramRouteRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

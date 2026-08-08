@@ -1,6 +1,10 @@
-import { createFileRoute } from '@tanstack/react-router';
-import NonogramApp from '../../../puzzles/nonogram/NonogramApp';
+import { createFileRoute, Outlet } from '@tanstack/react-router';
+import { NonogramProvider } from '../../../puzzles/nonogram/NonogramContext';
 
 export const Route = createFileRoute('/puzzles/nonogram')({
-  component: NonogramApp,
+  component: () => (
+    <NonogramProvider>
+      <Outlet />
+    </NonogramProvider>
+  ),
 });

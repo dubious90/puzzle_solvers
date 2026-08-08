@@ -1,6 +1,10 @@
-import { createFileRoute } from '@tanstack/react-router';
-import ColorSortApp from '../../../puzzles/color-sort/ColorSortApp';
+import { createFileRoute, Outlet } from '@tanstack/react-router';
+import { ColorSortProvider } from '../../../puzzles/color-sort/ColorSortContext';
 
 export const Route = createFileRoute('/puzzles/color-sort')({
-  component: ColorSortApp,
+  component: () => (
+    <ColorSortProvider>
+      <Outlet />
+    </ColorSortProvider>
+  ),
 });
