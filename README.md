@@ -10,7 +10,6 @@ A collection of browser-based puzzle solvers built with React, TypeScript, and V
 ## Getting Started
 
 ```bash
-cd app
 npm install
 npm start
 ```
