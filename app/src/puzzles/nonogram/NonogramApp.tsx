@@ -1,7 +1,8 @@
 import React, { ReactElement, useState } from 'react';
-import './App.css';
-
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography, Paper, Select, MenuItem, SelectChangeEvent } from '@mui/material';
+import {
+  Table, TableBody, TableCell, TableContainer,
+  TableHead, TableRow, Typography, Paper, Select, MenuItem, SelectChangeEvent,
+} from '@mui/material';
 
 import { AppState, RowOrColumn } from './enums';
 import Sliders from './Sliders';
@@ -9,26 +10,22 @@ import NonogramSolver, { Square, GridHistory, HistoryResolution } from './solver
 import NonogramButtons, { ButtonClickAction } from './NonogramButtons';
 import PromptInput from './PromptInput';
 import { ExamplePuzzle, getExamplePuzzle, getRandomPuzzle } from './puzzle-creator';
+import './NonogramApp.css';
 
 interface HistoryResolutionSelectorProps {
-  // The current value for history resolution to display.
-  value: HistoryResolution,
-  // Sets the value of the history resolution as the select changes.
-  onChange: (newValue: HistoryResolution) => void,
-  // The current app state, affects whether the select appears or not.
-  appState: AppState,
+  value: HistoryResolution;
+  onChange: (newValue: HistoryResolution) => void;
+  appState: AppState;
 }
 
 function HistoryResolutionSelector({ value, onChange, appState }: HistoryResolutionSelectorProps) {
-  const handleChange = (event: SelectChangeEvent<HistoryResolution>, child: React.ReactNode) => {
+  const handleChange = (event: SelectChangeEvent<HistoryResolution>) => {
     onChange(event.target.value as HistoryResolution);
   };
   if (appState === AppState.ITERATING_HISTORY) return null;
   return (
     <div>
-      <span style={{ marginRight: "10px" }}>
-        How often should history be captured?
-      </span>
+      <span style={{ marginRight: '10px' }}>How often should history be captured?</span>
       <Select size="small" value={value} onChange={handleChange}>
         <MenuItem value={HistoryResolution.EVERY_STEP}>Whenever value entered</MenuItem>
         <MenuItem value={HistoryResolution.EVERY_ROW_OR_COLUMN}>Whenever a row or column is changed</MenuItem>
@@ -39,26 +36,19 @@ function HistoryResolutionSelector({ value, onChange, appState }: HistoryResolut
 }
 
 function checkPromptForErrors(prompt: Array<number>, gridSize: number) {
-  if (!prompt) return "";
-  let newError = "";
-  let sum = prompt.reduce((a, b) => a + b, 0);
-
+  if (!prompt) return '';
+  const sum = prompt.reduce((a, b) => a + b, 0);
   if (sum > gridSize) {
-    newError = "Prompt adds up to " + sum + " which is longer than the grid allows.";
+    return 'Prompt adds up to ' + sum + ' which is longer than the grid allows.';
   }
-
-  return newError;
+  return '';
 }
 
-function App() {
-  // The state of the app, affects which elements appear and what they functionally enable.
+export default function NonogramApp() {
   const [appState, setAppState] = useState<AppState>(AppState.FORMING_PUZZLE);
   const [gridSize, setGridSize] = useState<number>(10);
-  // Set by the nonogram solver, iterated through when ITERATING_HISTORY
   const [gridHistory, setGridHistory] = useState<GridHistory>([]);
   const [currentHistoryIndex, setCurrentHistoryIndex] = useState<number>(0);
-
-  // Stores the full set of prompts in a map keyed by gridSize, so changing the grid size does not remove effort.
   const [rowPromptsByGridSize, setRowPromptsByGridSize] = useState(new Map<number, number[][]>());
   const [columnPromptsByGridSize, setColumnPromptsByGridSize] = useState(new Map<number, number[][]>());
   const [historyResolution, setHistoryResolution] = useState<HistoryResolution>(HistoryResolution.EVERY_ROW_OR_COLUMN);
@@ -81,36 +71,13 @@ function App() {
     setColumnPromptsByGridSize(newMap);
   }
 
-  function handleGridSizeSlider(newGridSize: number) {
-    setGridSize(newGridSize);
-  }
-
-  let headers: ReactElement[] = [<TableCell key="spacer"></TableCell>];
-  let rows: ReactElement[] = [];
-  const handleRowChange = (index: number, newPrompt: number[]) => {
-    let newPrompts = rowPrompts.slice();
-    newPrompts[index] = newPrompt;
-    setRowPrompts(newPrompts);
-  };
-
-  const handleColumnChange = (index: number, newPrompt: number[]) => {
-    let newPrompts = columnPrompts.slice();
-    newPrompts[index] = newPrompt;
-    setColumnPrompts(newPrompts);
-  }
-
-  /**
-   * Generic function for handling all of the actions the main buttons may take.
-   * 
-   * @param action Defines the button being clicked, determines what action to take.
-   */
   const handleButtonClick = (action: ButtonClickAction) => {
     if (action === ButtonClickAction.SOLVE_PUZZLE) {
       if (errorInPrompts) {
-        alert("Please resolve any errors in the prompts before solving the puzzle");
+        alert('Please resolve any errors in the prompts before solving the puzzle');
         return;
       }
-      let solver = nonogramSolver;
+      const solver = nonogramSolver;
       solver.setHistoryResolution(historyResolution);
       const history: GridHistory = [];
       solver.solveNonogram(rowPrompts, columnPrompts, history);
@@ -118,23 +85,23 @@ function App() {
       setAppState(AppState.ITERATING_HISTORY);
       setCurrentHistoryIndex(history.length - 1);
       setNonogramSolver(solver);
-    }
-    else if (action === ButtonClickAction.BACK_TO_PUZZLE_CREATION) {
+    } else if (action === ButtonClickAction.BACK_TO_PUZZLE_CREATION) {
       setAppState(AppState.FORMING_PUZZLE);
       setCurrentHistoryIndex(0);
       setGridHistory([]);
-    }
-    else if (action === ButtonClickAction.EXAMPLE_PUZZLE) {
-      let puzzle: ExamplePuzzle = getExamplePuzzle(gridSize);
+    } else if (action === ButtonClickAction.EXAMPLE_PUZZLE) {
+      const puzzle: ExamplePuzzle = getExamplePuzzle(gridSize);
+      setRowPrompts(puzzle.rows);
+      setColumnPrompts(puzzle.columns);
+    } else if (action === ButtonClickAction.RANDOM_PUZZLE) {
+      const puzzle: ExamplePuzzle = getRandomPuzzle(gridSize);
       setRowPrompts(puzzle.rows);
       setColumnPrompts(puzzle.columns);
     }
-    else if (action === ButtonClickAction.RANDOM_PUZZLE) {
-      let puzzle: ExamplePuzzle = getRandomPuzzle(gridSize);
-      setRowPrompts(puzzle.rows);
-      setColumnPrompts(puzzle.columns);
-    }
-  }
+  };
+
+  const headers: ReactElement[] = [<TableCell key="spacer"></TableCell>];
+  const rows: ReactElement[] = [];
 
   for (let i = 0; i < gridSize; i++) {
     const columnPrompt = columnPrompts[i];
@@ -142,13 +109,17 @@ function App() {
     if (columnPromptError) errorInPrompts = true;
     headers.push(
       <PromptInput
+        key={'columnPromptInput' + i}
         appState={appState}
         promptType={RowOrColumn.COLUMN}
         value={columnPrompt}
-        onChange={(prompt) => { handleColumnChange(i, prompt) }}
+        onChange={(prompt) => {
+          const newPrompts = columnPrompts.slice();
+          newPrompts[i] = prompt;
+          setColumnPrompts(newPrompts);
+        }}
         promptError={columnPromptError}
-        reactKey={"columnPrompt" + i}
-        key={"columnPromptInput" + i}
+        reactKey={'columnPrompt' + i}
       />
     );
 
@@ -156,70 +127,64 @@ function App() {
     const cells: ReactElement[] = [];
     for (let j = 0; j < gridSize; j++) {
       const square: Square = currentRow[j] || Square.MAYBE;
-      const reactKey = "cell_" + i + "_" + j;
+      const reactKey = 'cell_' + i + '_' + j;
       if (square === Square.YES) {
-        cells.push(<TableCell key={reactKey} size="small" style={{ background: 'gray', border: "1px solid gray" }}><div key={reactKey + "_div"} className='cellDiv'>&#x2713;</div></TableCell>);
-      }
-      else if (square === Square.NO) {
-        cells.push(<TableCell key={reactKey} size="small" style={{ border: "1px solid gray" }}><div key={reactKey + "_div"} className='cellDiv'>X</div></TableCell>);
-      }
-      else {
-        cells.push(<TableCell key={reactKey} size="small" style={{ border: "1px solid gray" }}><div key={reactKey + "_div"} className='cellDiv'>&nbsp;</div></TableCell>);
+        cells.push(<TableCell key={reactKey} size="small" style={{ background: 'gray', border: '1px solid gray' }}><div className='cellDiv'>&#x2713;</div></TableCell>);
+      } else if (square === Square.NO) {
+        cells.push(<TableCell key={reactKey} size="small" style={{ border: '1px solid gray' }}><div className='cellDiv'>X</div></TableCell>);
+      } else {
+        cells.push(<TableCell key={reactKey} size="small" style={{ border: '1px solid gray' }}><div className='cellDiv'>&nbsp;</div></TableCell>);
       }
     }
 
     const rowPrompt = rowPrompts[i];
     const rowPromptError = checkPromptForErrors(rowPrompt, gridSize);
     if (rowPromptError) errorInPrompts = true;
-    cells.unshift(<PromptInput
-      appState={appState}
-      promptType={RowOrColumn.ROW}
-      value={rowPrompts[i]}
-      onChange={(prompt) => { handleRowChange(i, prompt) }}
-      promptError={rowPromptError}
-      reactKey={"rowPrompt" + i}
-      key={"rowPromptInput" + i}
-    />);
-    rows.push(
-      <TableRow key={"row_" + i}>
-        {cells}
-      </TableRow>
+    cells.unshift(
+      <PromptInput
+        key={'rowPromptInput' + i}
+        appState={appState}
+        promptType={RowOrColumn.ROW}
+        value={rowPrompts[i]}
+        onChange={(prompt) => {
+          const newPrompts = rowPrompts.slice();
+          newPrompts[i] = prompt;
+          setRowPrompts(newPrompts);
+        }}
+        promptError={rowPromptError}
+        reactKey={'rowPrompt' + i}
+      />
     );
+    rows.push(<TableRow key={'row_' + i}>{cells}</TableRow>);
   }
 
   const instructions = appState === AppState.FORMING_PUZZLE
-    ? <div style={{ margin: "15px" }}>
-      <Typography>Click on the prompts to edit. All prompts should be comma delimited lists of numbers (e.g. 5 or 2,4,2)</Typography>
-    </div>
+    ? <div style={{ margin: '15px' }}>
+        <Typography>Click on the prompts to edit. All prompts should be comma delimited lists of numbers (e.g. 5 or 2,4,2)</Typography>
+      </div>
     : null;
 
   return (
-    <div className="App" style={{ margin: "20px" }}>
+    <div className="App" style={{ margin: '20px' }}>
       <Sliders
         appState={appState}
         gridSize={gridSize}
-        gridSizeOnChange={(event: Event, newGridSize: number | number[]) => { handleGridSizeSlider(newGridSize as number); }}
+        gridSizeOnChange={(_e, v) => setGridSize(v as number)}
         historySize={gridHistory.length}
-        historyOnChange={(event: Event, newHistoryIndex: number | number[]) => { setCurrentHistoryIndex(newHistoryIndex as number); }}
+        historyOnChange={(_e, v) => setCurrentHistoryIndex(v as number)}
         currentHistoryIndex={currentHistoryIndex}
       />
       <HistoryResolutionSelector appState={appState} onChange={setHistoryResolution} value={historyResolution} />
       {instructions}
-      <TableContainer component={Paper} sx={{ paddingBottom: "10px" }}>
-        <Table sx={{ width: "auto", margin: "0 auto" }} id="nonogramTable" aria-label="nonogramTable">
+      <TableContainer component={Paper} sx={{ paddingBottom: '10px' }}>
+        <Table sx={{ width: 'auto', margin: '0 auto' }} id="nonogramTable" aria-label="nonogramTable">
           <TableHead>
-            <TableRow key="header_row">
-              {headers}
-            </TableRow>
+            <TableRow key="header_row">{headers}</TableRow>
           </TableHead>
-          <TableBody>
-            {rows}
-          </TableBody>
+          <TableBody>{rows}</TableBody>
         </Table>
       </TableContainer>
       <NonogramButtons appState={appState} handleButtonClick={handleButtonClick} />
     </div>
   );
 }
-
-export default App;

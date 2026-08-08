@@ -8,13 +8,12 @@ body {
 }
 
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
 }
 
+/* color-sort */
 .pipesList {
   list-style-type: none;
-  /* float: left; */
   display: inline-block;
   flex-grow: 1;
   margin: 10px;
@@ -27,7 +26,6 @@ code {
 
 .colorList {
   list-style-type: none;
-  /* float: left; */
   display: inline-block;
   flex-grow: 1;
   margin: 10px;
@@ -48,10 +46,25 @@ code {
   z-index: 1000;
 }
 
-.hidden {
-  display: none;
-}
-
 .secondaryButtons {
   margin: 10px;
+}
+
+/* nonogram */
+.nonogramCell {
+  border: 1px solid black;
+  width: .5em !important;
+}
+
+.promptInput {
+  width: .5em;
+}
+
+.nonogramCell div.cellDiv {
+  aspect-ratio: 1/1;
+  padding: 0px;
+}
+
+table.nonogramTable th {
+  padding: 1px;
 }
